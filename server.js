@@ -21,7 +21,7 @@ const app = express();
 //middleware
 app.use(cors(
   {
-    origin: ["http://localhost:3000", "https://paws-to-whiskers-ecommerce-backend.onrender.com"],
+    origin: ["https://paws-to-whiskers-ecommerce-frontend.vercel.app", "https://paws-to-whiskers-ecommerce-backend.onrender.com"],
     credentials: true,
   }
 ));
