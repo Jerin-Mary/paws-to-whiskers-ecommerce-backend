@@ -353,32 +353,52 @@ export const braintreeTokenController = async (req, res) => {
 export const brainTreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
+
+    // Calculate total
     let total = 0;
     cart.map((i) => {
       total += i.price;
     });
-    let newTransaction = gateway.transaction.sale(
-      {
-        amount: total,
-        paymentMethodNonce: nonce,
-        options: {
-          submitForSettlement: true,
-        },
+
+  // Create transaction
+    const result = await gateway.transaction.sale({
+      amount: total.toFixed(2),
+      paymentMethodNonce: nonce,
+      options: {
+        submitForSettlement: true,
       },
-      function (error, result) {
-        if (result) {
-          const order = new orderModel({
-            products: cart,
-            payment: result,
-            buyer: req.user._id,
-          }).save();
-          res.json({ ok: true });
-        } else {
-          res.status(500).send(error);
-        }
-      }
-    );
+    });
+
+    if (result.success) {
+      // Store order in DB
+      const order = new orderModel({
+        products: cart,
+        payment: result,
+        buyer: req.user._id,
+      });
+      await order.save();
+
+      res.json({
+        success: true,
+        message: "Payment successful",
+        transactionId: result.transaction.id,
+        amount: result.transaction.amount,
+      });
+    } else {
+
+      //  Payment failed
+      res.status(400).json({
+        success: false,
+        message: "Payment failed",
+        error: result.message,
+      });
+    }
   } catch (error) {
-    console.log(error);
+    console.error("Payment Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Payment error, please try again.",
+      error,
+    });
   }
 };
