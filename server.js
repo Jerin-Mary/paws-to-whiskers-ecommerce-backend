@@ -19,7 +19,12 @@ connectDB();
 const app = express();
 
 //middleware
-app.use(cors());
+app.use(cors(
+  {
+    origin: ["http://localhost:3000", "https://paws-to-whiskers-ecommerce-backend.onrender.com"],
+    credentials: true,
+  }
+));
 app.use(express.json());
 app.use(morgan('dev'));
 
