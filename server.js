@@ -19,12 +19,16 @@ connectDB();
 const app = express();
 
 //middleware
-app.use(cors(
-  {
-    origin: ["https://paws-to-whiskers-ecommerce-frontend.vercel.app", "https://paws-to-whiskers-ecommerce-backend.onrender.com"],
+app.use(
+  cors({
+    origin: [
+      /vercel\.app$/, 
+      "https://paws-to-whiskers-ecommerce-frontend.vercel.app", 
+      "https://paws-to-whiskers-ecommerce-backend.onrender.com", 
+    ],
     credentials: true,
-  }
-));
+  })
+);
 app.use(express.json());
 app.use(morgan('dev'));
 
