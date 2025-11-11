@@ -356,7 +356,7 @@ export const brainTreePaymentController = async (req, res) => {
 
     // Calculate total
     let total = 0;
-    cart.map((i) => {
+     cart.forEach((i) => {
       total += i.price;
     });
 
@@ -364,9 +364,7 @@ export const brainTreePaymentController = async (req, res) => {
     const result = await gateway.transaction.sale({
       amount: total.toFixed(2),
       paymentMethodNonce: nonce,
-      options: {
-        submitForSettlement: true,
-      },
+      options: { submitForSettlement: true, },
     });
 
     if (result.success) {
@@ -378,7 +376,7 @@ export const brainTreePaymentController = async (req, res) => {
       });
       await order.save();
 
-      res.json({
+      res.status(200).json({
         success: true,
         message: "Payment successful",
         transactionId: result.transaction.id,
@@ -387,6 +385,7 @@ export const brainTreePaymentController = async (req, res) => {
     } else {
 
       //  Payment failed
+      console.error("Braintree failed:", result.message);
       res.status(400).json({
         success: false,
         message: "Payment failed",
@@ -394,10 +393,10 @@ export const brainTreePaymentController = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Payment Error:", error);
+    console.error("Braintree Error:", error);
     res.status(500).json({
       success: false,
-      message: "Payment error, please try again.",
+      message: "Server error during payment",
       error,
     });
   }
